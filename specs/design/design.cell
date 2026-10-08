@@ -5,6 +5,7 @@ component motor-claims-api as "Motor Claims API" service
 component claims-db as "Claims Database" database
 
 east thunder-auth as "Thunder Auth" identity-server
+south email-service as "Email Service" service
 
 north -> motor-claims-webapp
 
@@ -12,3 +13,4 @@ motor-claims-webapp -> motor-claims-api
 motor-claims-webapp -> thunder-auth
 motor-claims-api -> thunder-auth
 motor-claims-api -> claims-db
+motor-claims-api -> email-service

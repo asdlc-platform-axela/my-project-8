@@ -313,7 +313,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
-          description: Claim submitted; a claim number is assigned
+          description: Claim submitted; a claim number is assigned and a confirmation email is sent to the claimant
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Claim' }

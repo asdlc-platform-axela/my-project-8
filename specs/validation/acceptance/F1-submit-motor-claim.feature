@@ -130,3 +130,11 @@ Feature: F1 Submit Motor Claim
       Given Maya has submitted a claim for policy "POL-1004"
       When she tries to change a detail on that claim
       Then the claim's details remain as they were when it was submitted
+
+  @story-F1.16
+  Rule: The claimant receives an email confirmation when they submit a claim
+
+    Scenario: Confirming a submission by email
+      Given Maya has filled in a draft claim and confirmed the declaration
+      When she submits the claim
+      Then she receives an email confirming the claim was submitted
