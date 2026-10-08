@@ -27,3 +27,4 @@ Cross-cutting rules — sign-in and the no-email decision — are in [Product-wi
 - The Letter of Indemnity and Discharge Receipt — settlement-stage documents the insurer handles once a claim is approved, outside this self-service submission.
 - Email notifications of any kind.
 - Payment or settlement processing.
+
