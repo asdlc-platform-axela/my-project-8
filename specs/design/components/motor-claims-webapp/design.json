@@ -1,0 +1,17 @@
+{
+  "name": "motor-claims-webapp",
+  "type": "web-application",
+  "version": "0.1.0",
+  "language": "TypeScript",
+  "buildpack": "docker",
+  "appPath": "motor-claims-webapp",
+  "entrypoint": "deployment/web-application",
+  "exposure": "internet",
+  "dependencies": [
+    { "kind": "component", "name": "motor-claims-api", "description": "Loads, saves and submits the claimant's motor claims and their attachments." },
+    { "kind": "platform-resource", "name": "thunder-auth", "resourceType": "thunder-app" }
+  ],
+  "description": "The claimant-facing single-page app: the motor claim form (insured, ownership, driver, accident, usage and the conditional sections), draft saving and resuming, and the My Claims dashboard listing drafts and submitted claims. Holds no business data itself — every read and write goes through motor-claims-api.",
+  "stories": ["F1.1", "F1.2", "F1.3", "F1.4", "F1.5", "F1.6", "F1.7", "F1.8", "F1.9", "F1.10", "F1.11", "F1.12", "F1.13", "F1.14", "F1.15", "F2.1", "F2.2", "F2.3", "F2.4"],
+  "skillsPinned": ["wireframes", "react-webapp", "oxygen-ui-design-system", "thunder-authentication"]
+}

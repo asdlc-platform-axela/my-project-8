@@ -1,0 +1,14 @@
+title Motor Claim Portal
+
+component motor-claims-webapp as "Motor Claims Portal" web-application
+component motor-claims-api as "Motor Claims API" service
+component claims-db as "Claims Database" database
+
+east thunder-auth as "Thunder Auth" identity-server
+
+north -> motor-claims-webapp
+
+motor-claims-webapp -> motor-claims-api
+motor-claims-webapp -> thunder-auth
+motor-claims-api -> thunder-auth
+motor-claims-api -> claims-db
