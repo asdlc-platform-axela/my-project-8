@@ -35,3 +35,4 @@ Lets the signed-in claimant fill in and submit a motor insurance claim — insur
 
 - Looking up the claimant's policy or vehicle against the insurer's own records — policy number and vehicle registration are entered by hand.
 - Editing or withdrawing a claim once it has been submitted.
+
