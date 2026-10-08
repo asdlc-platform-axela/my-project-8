@@ -21,7 +21,6 @@ Lets the signed-in claimant fill in and submit a motor insurance claim — insur
 - F1.13 As a claimant, I confirm the declaration that my particulars are true and agree to the insurer's privacy policy before I can submit. \[2025-motor-claim-form.pdf · p.2 Declaration\]
 - F1.14 As a claimant, I save an incomplete claim as a draft and come back to finish it later.
 - F1.15 As a claimant, once I submit a claim I can no longer change it myself.
-- F1.16 As a claimant, I receive an email confirmation when I submit a claim.
 
 ## Decisions
 
@@ -29,10 +28,13 @@ Lets the signed-in claimant fill in and submit a motor insurance claim — insur
 - Each conditional section (goods carried, injured passengers, third-party injury, third-party property damage, other insurance) opens with a yes/no question; its detail fields only appear when the answer is yes.
 - A submitted claim is final — the claimant cannot edit or withdraw it themselves; any further change goes through the insurer directly.
 - A claim can be saved as a draft before submission and resumed later.
-- Transactional email: sends the claimant a confirmation when their claim is submitted.
 
 ## Out of Scope
 
 - Looking up the claimant's policy or vehicle against the insurer's own records — policy number and vehicle registration are entered by hand.
 - Editing or withdrawing a claim once it has been submitted.
+
+## Retired
+
+- F1.16 dropped — the email confirmation is removed for now.
 

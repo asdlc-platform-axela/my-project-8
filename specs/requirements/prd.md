@@ -6,7 +6,7 @@ A policyholder reporting a vehicle accident today fills in a long paper claim fo
 
 ## Solution
 
-A single web app where a signed-in policyholder fills in the motor claim form online — insured, driver, accident, usage and third-party details — attaches the required documents, submits the claim (receiving an email confirmation), and sees every claim they have submitted on a simple dashboard.
+A single web app where a signed-in policyholder fills in the motor claim form online — insured, driver, accident, usage and third-party details — attaches the required documents, submits the claim, and sees every claim they have submitted on a simple dashboard.
 
 ## Actors
 
