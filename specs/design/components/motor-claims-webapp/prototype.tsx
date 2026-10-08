@@ -370,11 +370,10 @@ function ClaimForm() {
       )}
       <Form
         id="form.claim"
-        onSubmit={submitClaim}
         actions={
           <Stack direction="row">
             <Button id="btn.save-draft" label="Save Draft" onPress={saveDraft} />
-            <Button id="btn.submit-claim" label="Submit Claim" emphasis="primary" submit />
+            <Button id="btn.submit-claim" label="Submit Claim" emphasis="primary" onPress={submitClaim} />
           </Stack>
         }
       >
