@@ -6,7 +6,7 @@ A policyholder reporting a vehicle accident today fills in a long paper claim fo
 
 ## Solution
 
-A single web app where a signed-in policyholder fills in the motor claim form online — insured, driver, accident, usage and third-party details — attaches the required documents, submits the claim, and sees every claim they have submitted on a simple dashboard.
+A single web app where a signed-in policyholder fills in the motor claim form online — insured, driver, accident, usage and third-party details — attaches the required documents, submits the claim (receiving an email confirmation), and sees every claim they have submitted on a simple dashboard.
 
 ## Actors
 
@@ -25,6 +25,5 @@ Cross-cutting rules — sign-in and the no-email decision — are in [Product-wi
 
 - Claims processing, review, or approval by insurer staff — no staff-facing screens in this app.
 - The Letter of Indemnity and Discharge Receipt — settlement-stage documents the insurer handles once a claim is approved, outside this self-service submission.
-- Email notifications of any kind.
 - Payment or settlement processing.
 

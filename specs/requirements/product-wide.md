@@ -9,5 +9,5 @@ Rules that apply to more than one feature.
 ## Decisions
 
 - Single actor: the claimant. No insurer-staff or admin features in this build.
-- No email notifications anywhere in the app — login is direct, with no email-based verification step.
+- Login is direct, with no email-based verification step for signing in.
 
