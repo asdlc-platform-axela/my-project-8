@@ -19,7 +19,7 @@ A single web app where a signed-in policyholder fills in the motor claim form on
 
 ## Product-wide
 
-Cross-cutting rules — sign-in and the no-email decision — are in [Product-wide](product-wide.md).
+Cross-cutting rules — sign-in — are in [Product-wide](product-wide.md).
 
 ## Out of Scope
 
