@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 3,
+  "name": "Motor Claim Portal",
+  "entryScreen": "screen.dashboard",
+  "roles": [{ "id": "Claimant", "name": "Claimant" }],
+  "states": [
+    { "id": "state.default", "name": "Default" },
+    { "id": "state.empty", "name": "No claims yet" },
+    { "id": "state.validation-error", "name": "Declaration not confirmed" },
+    { "id": "state.failed", "name": "Claims list failed to load" }
+  ],
+  "screens": [
+    { "id": "screen.dashboard", "name": "My Claims", "roleIds": ["Claimant"] },
+    { "id": "screen.claim-form", "name": "Motor Claim Form", "roleIds": ["Claimant"] },
+    { "id": "screen.claim-detail", "name": "Claim Detail", "roleIds": ["Claimant"] },
+    { "id": "screen.account", "name": "Account", "roleIds": ["Claimant"] },
+    { "id": "screen.settings", "name": "Settings", "roleIds": ["Claimant"] },
+    { "id": "screen.signed-out", "name": "Signed Out", "roleIds": ["Claimant"] }
+  ],
+  "flows": [
+    {
+      "id": "flow.claimant-journey",
+      "name": "Claimant journey",
+      "roleId": "Claimant",
+      "screenIds": ["screen.dashboard", "screen.claim-form", "screen.claim-detail"]
+    }
+  ]
+}
