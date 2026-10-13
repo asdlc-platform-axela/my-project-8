@@ -89,3 +89,21 @@ function attachmentDecoding() {
     test:assertTrue(decodeAttachment({'type: "bank-page", fileName: "b.pdf", contentType: "application/pdf", content: "!!!"}) is string);
     test:assertTrue(decodeAttachment({'type: "bank-page", fileName: "", contentType: "application/pdf", content: "aGVsbG8="}) is string);
 }
+
+@test:Config {}
+function clampPagingBounds() {
+    test:assertEquals(clampPaging(500, -3), [100, 0]);
+    test:assertEquals(clampPaging(0, 5), [20, 5]);
+    test:assertEquals(clampPaging(10, 0), [10, 0]);
+}
+
+@test:Config {}
+function pageLinksMiddleAndEdges() {
+    test:assertEquals(pageLinks((), 20, 0, 20), [(), ()]);
+    test:assertEquals(pageLinks("submitted", 20, 0, 45),
+        ["/me/claims?status=submitted&limit=20&offset=20", ()]);
+    test:assertEquals(pageLinks((), 20, 20, 45),
+        ["/me/claims?limit=20&offset=40", "/me/claims?limit=20&offset=0"]);
+    test:assertEquals(pageLinks((), 20, 40, 45), [(), "/me/claims?limit=20&offset=20"]);
+    test:assertEquals(pageLinks((), 20, 5, 100), ["/me/claims?limit=20&offset=25", "/me/claims?limit=20&offset=0"]);
+}

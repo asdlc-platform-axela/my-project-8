@@ -198,3 +198,28 @@ function missingForSubmit(Claim claim) returns string[] {
     }
     return missing;
 }
+
+const int DEFAULT_PAGE_SIZE = 20;
+const int MAX_PAGE_SIZE = 100;
+
+// Keeps the paging parameters inside the contract's bounds.
+function clampPaging(int pageLimit, int pageOffset) returns [int, int] {
+    int boundedLimit = pageLimit < 1 ? DEFAULT_PAGE_SIZE : (pageLimit > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : pageLimit);
+    int boundedOffset = pageOffset < 0 ? 0 : pageOffset;
+    return [boundedLimit, boundedOffset];
+}
+
+function pageUri(string? status, int pageLimit, int pageOffset) returns string {
+    string base = "/me/claims?";
+    if status is string {
+        base = base + "status=" + status + "&";
+    }
+    return base + "limit=" + pageLimit.toString() + "&offset=" + pageOffset.toString();
+}
+
+// Relative URIs of the neighbouring pages, or () when there is none.
+function pageLinks(string? status, int pageLimit, int pageOffset, int total) returns [string?, string?] {
+    string? next = pageOffset + pageLimit < total ? pageUri(status, pageLimit, pageOffset + pageLimit) : ();
+    string? previous = pageOffset > 0 ? pageUri(status, pageLimit, pageOffset > pageLimit ? pageOffset - pageLimit : 0) : ();
+    return [next, previous];
+}

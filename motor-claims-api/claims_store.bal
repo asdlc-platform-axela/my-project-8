@@ -253,3 +253,66 @@ function submitDraft(string ownerId, string claimId) returns ClaimOutcome {
         return failure;
     }
 }
+
+type SummaryRow record {|
+    string id;
+    string status;
+    string policy_number;
+    string vehicle_reg_number;
+    string? claim_number;
+    string? submitted_at;
+    string updated_at;
+|};
+
+type CountRow record {|
+    int total;
+|};
+
+// One page of the caller's claims. Drafts come before submitted claims when no
+// status is given; drafts are newest-edited first, submitted claims newest
+// submission first. Every query is scoped to the caller's owner_id.
+function listClaims(string ownerId, "draft"|"submitted"? status, int pageLimit, int pageOffset)
+        returns inline_response_200|error {
+    postgresql:Client db = check getDb();
+    sql:ParameterizedQuery filter = `WHERE owner_id = ${ownerId}`;
+    if status is string {
+        filter = sql:queryConcat(filter, ` AND status = ${status}`);
+    }
+    CountRow counted = check db->queryRow(sql:queryConcat(`SELECT count(*) AS total FROM claims `, filter));
+    sql:ParameterizedQuery query = sql:queryConcat(`
+        SELECT id, status, policy_number, vehicle_reg_number, claim_number,
+            to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS submitted_at,
+            to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS updated_at
+        FROM claims `, filter, `
+        ORDER BY (status = 'submitted'), COALESCE(submitted_at, updated_at) DESC, id
+        LIMIT ${pageLimit} OFFSET ${pageOffset}`);
+    stream<SummaryRow, sql:Error?> rows = db->query(query);
+    ClaimSummary[] data = check from SummaryRow row in rows
+        select toSummary(row);
+    [string?, string?] [next, previous] = pageLinks(status, pageLimit, pageOffset, counted.total);
+    return {count: counted.total, next, previous, data};
+}
+
+function toSummary(SummaryRow row) returns ClaimSummary {
+    ClaimSummary summary = {
+        id: row.id,
+        status: row.status == "draft" ? "draft" : "submitted",
+        policyNumber: row.policy_number,
+        vehicleRegNumber: row.vehicle_reg_number,
+        updatedAt: row.updated_at
+    };
+    string? claimNumber = row.claim_number;
+    if claimNumber is string {
+        summary.claimNumber = claimNumber;
+    }
+    string? submittedAt = row.submitted_at;
+    if submittedAt is string {
+        summary.submittedAt = submittedAt;
+    }
+    return summary;
+}
+
+function getOwnClaim(string ownerId, string claimId) returns ClaimOutcome {
+    postgresql:Client db = check getDb();
+    return loadOwnClaim(db, ownerId, claimId);
+}

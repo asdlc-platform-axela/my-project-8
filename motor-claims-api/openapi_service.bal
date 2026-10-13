@@ -13,8 +13,18 @@ service http:InterceptableService / on ep0 {
     # + return - returns can be any of following types 
     # http:Ok (A page of the caller's claims)
     # http:Unauthorized (Not signed in)
-    resource function get me/claims("draft"|"submitted"? status, int 'limit = 20, int offset = 0) returns inline_response_200|ErrorUnauthorized|http:NotImplemented {
-        return <http:NotImplemented>{body: {code: 501, message: "not implemented"}};
+    resource function get me/claims(http:RequestContext ctx, "draft"|"submitted"? status, int 'limit = 20, int offset = 0)
+            returns inline_response_200|http:Unauthorized|http:InternalServerError {
+        GatewayCaller|http:Unauthorized caller = requireGatewayCaller(ctx);
+        if caller is http:Unauthorized {
+            return caller;
+        }
+        [int, int] [pageLimit, pageOffset] = clampPaging('limit, offset);
+        inline_response_200|error page = listClaims(caller.userId, status, pageLimit, pageOffset);
+        if page is error {
+            return internalError(page);
+        }
+        return page;
     }
 
     # The caller's own claim, full detail
@@ -23,8 +33,20 @@ service http:InterceptableService / on ep0 {
     # http:Ok (The claim)
     # http:Unauthorized (Not signed in)
     # http:NotFound (No such claim for this caller)
-    resource function get me/claims/[string claimId]() returns Claim|ErrorUnauthorized|ErrorNotFound|http:NotImplemented {
-        return <http:NotImplemented>{body: {code: 501, message: "not implemented"}};
+    resource function get me/claims/[string claimId](http:RequestContext ctx)
+            returns Claim|http:Unauthorized|ErrorNotFound|http:InternalServerError {
+        GatewayCaller|http:Unauthorized caller = requireGatewayCaller(ctx);
+        if caller is http:Unauthorized {
+            return caller;
+        }
+        ClaimOutcome outcome = getOwnClaim(caller.userId, claimId);
+        if outcome is Claim {
+            return outcome;
+        }
+        if outcome is NotFoundError {
+            return <ErrorNotFound>{body: {code: 404, message: "Not found", description: "No such claim for this caller"}};
+        }
+        return internalError(outcome);
     }
 
     # Start a new draft claim
