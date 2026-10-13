@@ -222,6 +222,10 @@ export const handlers = [
     const c = row.claim;
     if (c.status !== "draft") return bad("Claim is already submitted");
     if (!c.declarationAccepted) return bad("The declaration must be accepted before submitting");
+    const types = (c.attachments ?? []).map((a) => a.type);
+    if (!types.includes("driving-licence") || !types.includes("bank-page")) {
+      return bad("A driving licence copy and a bank page copy must be attached before submitting");
+    }
     const now = new Date().toISOString();
     row.claim = { ...c, status: "submitted", claimNumber: `CLM-${nextId++}`, submittedAt: now, updatedAt: now };
     return HttpResponse.json(row.claim);

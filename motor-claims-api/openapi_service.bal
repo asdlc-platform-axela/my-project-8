@@ -3,7 +3,7 @@
 
 import ballerina/http;
 
-listener http:Listener ep0 = new (9090);
+listener http:Listener ep0 = new (9090, requestLimits = {maxEntityBodySize: 8388608});
 
 service http:InterceptableService / on ep0 {
     public function createInterceptors() returns AssertionInterceptor => new;
@@ -33,8 +33,24 @@ service http:InterceptableService / on ep0 {
     # http:Created (Draft claim created)
     # http:BadRequest (Invalid input)
     # http:Unauthorized (Not signed in)
-    resource function post me/claims(@http:Payload ClaimDraftInput payload) returns Claim|ErrorBadRequest|ErrorUnauthorized|http:NotImplemented {
-        return <http:NotImplemented>{body: {code: 501, message: "not implemented"}};
+    resource function post me/claims(http:RequestContext ctx, @http:Payload ClaimDraftInput payload)
+            returns ClaimCreated|ErrorBadRequest|http:Unauthorized|http:InternalServerError {
+        GatewayCaller|http:Unauthorized caller = requireGatewayCaller(ctx);
+        if caller is http:Unauthorized {
+            return caller;
+        }
+        string? invalid = validateDraftInput(payload, true);
+        if invalid is string {
+            return badRequest(invalid);
+        }
+        ClaimOutcome outcome = createDraft(caller.userId, payload);
+        if outcome is Claim {
+            return <ClaimCreated>{body: outcome};
+        }
+        if outcome is RuleError {
+            return badRequest(outcome.message());
+        }
+        return internalError(outcome);
     }
 
     # Attach a document to a draft claim
@@ -44,8 +60,21 @@ service http:InterceptableService / on ep0 {
     # http:BadRequest (The claim is not a draft, or the input is invalid)
     # http:Unauthorized (Not signed in)
     # http:NotFound (No such claim for this caller)
-    resource function post me/claims/[string claimId]/attachments(@http:Payload AttachmentInput payload) returns Attachment|ErrorBadRequest|ErrorUnauthorized|ErrorNotFound|http:NotImplemented {
-        return <http:NotImplemented>{body: {code: 501, message: "not implemented"}};
+    resource function post me/claims/[string claimId]/attachments(http:RequestContext ctx, @http:Payload AttachmentInput payload)
+            returns AttachmentCreated|ErrorBadRequest|http:Unauthorized|ErrorNotFound|http:InternalServerError {
+        GatewayCaller|http:Unauthorized caller = requireGatewayCaller(ctx);
+        if caller is http:Unauthorized {
+            return caller;
+        }
+        byte[]|string content = decodeAttachment(payload);
+        if content is string {
+            return badRequest(content);
+        }
+        Attachment|NotFoundError|RuleError|error outcome = addAttachment(caller.userId, claimId, payload, content);
+        if outcome is Attachment {
+            return <AttachmentCreated>{body: outcome};
+        }
+        return failureResponse(outcome);
     }
 
     # Submit a completed draft claim
@@ -55,8 +84,17 @@ service http:InterceptableService / on ep0 {
     # http:BadRequest (The declaration was not confirmed, the claim is already submitted, or required fields are missing)
     # http:Unauthorized (Not signed in)
     # http:NotFound (No such claim for this caller)
-    resource function post me/claims/[string claimId]/submit() returns ClaimOk|ErrorBadRequest|ErrorUnauthorized|ErrorNotFound|http:NotImplemented {
-        return <http:NotImplemented>{body: {code: 501, message: "not implemented"}};
+    resource function post me/claims/[string claimId]/submit(http:RequestContext ctx)
+            returns ClaimOk|ErrorBadRequest|http:Unauthorized|ErrorNotFound|http:InternalServerError {
+        GatewayCaller|http:Unauthorized caller = requireGatewayCaller(ctx);
+        if caller is http:Unauthorized {
+            return caller;
+        }
+        ClaimOutcome outcome = submitDraft(caller.userId, claimId);
+        if outcome is Claim {
+            return <ClaimOk>{body: outcome};
+        }
+        return failureResponse(outcome);
     }
 
     # Update a draft claim's fields
@@ -66,8 +104,21 @@ service http:InterceptableService / on ep0 {
     # http:BadRequest (The claim is not a draft, or the input is invalid)
     # http:Unauthorized (Not signed in)
     # http:NotFound (No such claim for this caller)
-    resource function put me/claims/[string claimId](@http:Payload ClaimDraftInput payload) returns Claim|ErrorBadRequest|ErrorUnauthorized|ErrorNotFound|http:NotImplemented {
-        return <http:NotImplemented>{body: {code: 501, message: "not implemented"}};
+    resource function put me/claims/[string claimId](http:RequestContext ctx, @http:Payload ClaimDraftInput payload)
+            returns ClaimOk|ErrorBadRequest|http:Unauthorized|ErrorNotFound|http:InternalServerError {
+        GatewayCaller|http:Unauthorized caller = requireGatewayCaller(ctx);
+        if caller is http:Unauthorized {
+            return caller;
+        }
+        string? invalid = validateDraftInput(payload, false);
+        if invalid is string {
+            return badRequest(invalid);
+        }
+        ClaimOutcome outcome = updateDraft(caller.userId, claimId, payload);
+        if outcome is Claim {
+            return <ClaimOk>{body: outcome};
+        }
+        return failureResponse(outcome);
     }
 }
 
@@ -215,4 +266,14 @@ public type Claim record {
 public type ErrorUnauthorized record {|
     *http:Unauthorized;
     Error body;
+|};
+
+public type ClaimCreated record {|
+    *http:Created;
+    Claim body;
+|};
+
+public type AttachmentCreated record {|
+    *http:Created;
+    Attachment body;
 |};

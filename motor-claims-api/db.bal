@@ -98,4 +98,5 @@ function createSchema(postgresql:Client db) returns error? {
         )`);
     _ = check db->execute(`
         CREATE INDEX IF NOT EXISTS attachments_claim_idx ON attachments (claim_id)`);
+    _ = check db->execute(`CREATE SEQUENCE IF NOT EXISTS claim_number_seq`);
 }

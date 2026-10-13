@@ -36,7 +36,7 @@ export interface ScreenRoute {
 
 export const SCREEN_ROUTES: readonly ScreenRoute[] = [
   { key: "dashboard", label: "My Claims", path: "/dashboard", loads: "GET /me/claims", nav: true },
-  { key: "claim-form", label: "Motor Claim Form", path: "/claim-form", loads: "POST /me/claims" },
+  { key: "claim-form", label: "Motor Claim Form", path: "/claim-form/:claim?", loads: "POST /me/claims" },
   { key: "claim-detail", label: "Claim Detail", path: "/claim-detail/:claimId", loads: "GET /me/claims/{claimId}" },
   { key: "account", label: "Account", path: "/account", loads: null },
   { key: "settings", label: "Settings", path: "/settings", loads: null },
