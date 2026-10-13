@@ -1,0 +1,29 @@
+apiVersion: openchoreo.dev/v1alpha1
+metadata:
+  name: motor-claims-api
+
+endpoints:
+  - name: http
+    type: HTTP
+    port: 9090
+    basePath: /
+    visibility:
+      - project
+      - external
+
+dependencies:
+  resources:
+    - ref: my-project-8-claims-db
+      envBindings:
+        dbname: CLAIMS_DB_DBNAME
+        host: CLAIMS_DB_HOST
+        password: CLAIMS_DB_PASSWORD
+        port: CLAIMS_DB_PORT
+        user: CLAIMS_DB_USER
+    - ref: my-project-8-thunder-auth
+      envBindings:
+        client_id: THUNDER_AUTH_CLIENT_ID
+        issuer: THUNDER_AUTH_ISSUER
+        jwks_url: THUNDER_AUTH_JWKS_URL
+        resource: THUNDER_AUTH_RESOURCE
+        scopes: THUNDER_AUTH_SCOPES

@@ -1,0 +1,11 @@
+# crash artefacts — never wanted, in any component
+core
+!core/
+core.[0-9]*
+hs_err_pid*.log
+replay_pid*.log
+
+/motor-claims-api/target/
+/motor-claims-api/Config.toml
+/motor-claims-webapp/node_modules/
+/motor-claims-webapp/dist/
