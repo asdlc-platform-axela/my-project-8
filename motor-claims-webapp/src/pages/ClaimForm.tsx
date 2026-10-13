@@ -197,6 +197,7 @@ const ATTACHMENT_ERROR_KEY: Record<AttachmentType, AttachmentErrorKey> = {
   "bank-page": "bankPageAttachment",
 };
 
+const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 const REQUIRED_MSG = "This field is required";
 
 // Rules shared by Save draft (identity of the claim only) and Submit (everything).
@@ -378,15 +379,25 @@ export function ClaimFormPage(): JSX.Element {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    const key = ATTACHMENT_ERROR_KEY[type];
+    // Feedback goes next to the control the user pressed, not only at the top of a long form.
+    const fail = (message: string): void => setErrors((e) => ({ ...e, [key]: message }));
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      fail("The file is larger than 5 MB. Choose a smaller PDF or image.");
+      return;
+    }
     await run("attach", async () => {
       const found = validate(form, false);
       if (Object.keys(found).length > 0) {
-        setErrors(found);
-        setFailure("Enter the policy number and vehicle registration number before attaching a document.");
+        setErrors((e) => ({ ...e, ...found }));
+        fail("Enter the policy number and vehicle registration number before attaching a document.");
         return;
       }
       const id = await persist();
-      if (!id) return;
+      if (!id) {
+        fail("The draft could not be saved, so the document was not attached.");
+        return;
+      }
       const { data, error } = await motorClaimsApi.POST("/me/claims/{claimId}/attachments", {
         params: { path: { claimId: id } },
         body: {
@@ -397,11 +408,11 @@ export function ClaimFormPage(): JSX.Element {
         },
       });
       if (!data) {
-        setFailure(apiMessage(error, "The document could not be attached."));
+        fail(apiMessage(error, "The document could not be attached."));
         return;
       }
       setAttachments((list) => [...list.filter((a) => a.type !== type), data]);
-      setErrors((e) => ({ ...e, [ATTACHMENT_ERROR_KEY[type]]: undefined }));
+      setErrors((e) => ({ ...e, [key]: undefined }));
     });
   };
 
